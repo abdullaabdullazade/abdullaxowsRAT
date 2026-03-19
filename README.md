@@ -1,4 +1,4 @@
-# abdullaxowsRAT
+# RATxows
 
 **Educational Remote Administration Tool (RAT)**
 
